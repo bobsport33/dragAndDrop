@@ -4,6 +4,8 @@ import update from "immutability-helper";
 
 import Selection from "./Selection";
 import KPIBin from "./KPIBin";
+import ChartBin from "./ChartBin";
+import Button from "../Button/Index";
 
 const Drag = styled.div`
     min-width: 90vw;
@@ -16,13 +18,28 @@ const Drag = styled.div`
     padding: 20px;
     display: flex;
 
-    align-items: center;
+    align-items: flex-start;
     gap: 30px;
+
+    .selection-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 20px;
+    }
 
     .bin {
         &__kpi-container {
-            width: 80%;
+            width: 100%;
             height: 100%;
+        }
+
+        &__chart-container {
+            height: 300px;
+            width: 100%;
+            display: flex;
+            gap: 20px;
         }
         &__kpi-row {
             display: flex;
@@ -35,7 +52,7 @@ const Drag = styled.div`
     .box__row {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         width: 20%;
         height: 100%;
     }
@@ -84,18 +101,32 @@ const DragSection = memo(({ kpiOptions }) => {
                         );
                     })}
             </div>
-            <div className="bin__kpi-container">
-                <div className="bin__kpi-row">
-                    {kpiValues.map((item, index) => {
+            <div className="selection-container">
+                <div className="bin__kpi-container">
+                    <div className="bin__kpi-row">
+                        {kpiValues.map((item, index) => {
+                            return (
+                                <KPIBin
+                                    key={index}
+                                    item={item}
+                                    onDrop={(item) => handleDrop(index, item)}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="bin__chart-container">
+                    {chartValues.map((item, index) => {
                         return (
-                            <KPIBin
+                            <ChartBin
                                 key={index}
                                 item={item}
-                                onDrop={(item) => handleDrop(index, item)}
+                                onDrop={(item) => {}}
                             />
                         );
                     })}
                 </div>
+                <Button text="Save" />
             </div>
         </Drag>
     );

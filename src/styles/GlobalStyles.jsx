@@ -2,8 +2,8 @@ import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
     :root {
-        background: rgb(12,148,71);
-        background: radial-gradient(circle, rgba(12,148,71,1) 0%, rgba(232,232,232,1) 71%);
+        background: rgb(150,172,167);
+    background: linear-gradient(132deg, rgba(150,172,167,1) 0%, rgba(219,233,230,1) 97%);
     }
 
     * {
