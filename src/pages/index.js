@@ -14,8 +14,13 @@ export default function Home() {
         "Total Questions",
         "Total Open Questions",
     ];
+    const chartOptions = [
+        "Questions Over Time",
+        "Questions by Turnaround Time",
+        "Questions by Topic",
+        "Questions by Status",
+    ];
 
-    const chartOptions = [];
     return (
         <>
             <Head>
@@ -33,7 +38,10 @@ export default function Home() {
             <DndProvider backend={HTML5Backend}>
                 <main>
                     <Title />
-                    <DragSection kpiOptions={kpiOptions} />
+                    <DragSection
+                        kpiOptions={kpiOptions}
+                        chartOptions={chartOptions}
+                    />
                 </main>
             </DndProvider>
         </>

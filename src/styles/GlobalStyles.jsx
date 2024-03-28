@@ -3,7 +3,7 @@ import { createGlobalStyle } from "styled-components";
 export const GlobalStyles = createGlobalStyle`
     :root {
         background: rgb(150,172,167);
-    background: linear-gradient(132deg, rgba(150,172,167,1) 0%, rgba(219,233,230,1) 97%);
+    background: linear-gradient(132deg, rgba(150,172,167,1) 0%, rgba(219,233,230,1) 70%);
     }
 
     * {

@@ -1,35 +1,51 @@
 import React, { useState, memo, useCallback } from "react";
 import styled from "styled-components";
-import update from "immutability-helper";
 
 import Selection from "./Selection";
 import KPIBin from "./KPIBin";
 import ChartBin from "./ChartBin";
 import Button from "../Button/Index";
+import { Colors } from "@/styles/variables";
 
 const Drag = styled.div`
     min-width: 90vw;
     width: 80%;
     margin: 0 auto;
-    border: 1px solid black;
-    border-radius: 20px;
-    background-color: #f0f0f0;
 
+    border-radius: 20px;
+    background-color: ${Colors.darkGreen};
+    color: ${Colors.lightGreen};
     padding: 20px;
     display: flex;
 
     align-items: flex-start;
     gap: 30px;
 
-    .selection-container {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 20px;
+    .selection {
+        &__container {
+            width: 20%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        &__column {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            width: 100%;
+            height: 100%;
+        }
     }
 
     .bin {
+        &__container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 20px;
+        }
         &__kpi-container {
             width: 100%;
             height: 100%;
@@ -48,17 +64,9 @@ const Drag = styled.div`
             width: 100%;
         }
     }
-
-    .box__row {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        width: 20%;
-        height: 100%;
-    }
 `;
 
-const DragSection = memo(({ kpiOptions }) => {
+const DragSection = memo(({ kpiOptions, chartOptions }) => {
     const [kpiValues, setKpiValues] = useState([
         { name: "KPI1", currValue: "" },
         { name: "KPI2", currValue: "" },
@@ -72,7 +80,7 @@ const DragSection = memo(({ kpiOptions }) => {
         { name: "chart2", currValue: "" },
     ]);
 
-    const handleDrop = useCallback(
+    const handleKPIDrop = useCallback(
         (index, item) => {
             setKpiValues((prevKpiValues) => {
                 return prevKpiValues.map((value, i) => {
@@ -86,22 +94,55 @@ const DragSection = memo(({ kpiOptions }) => {
         [setKpiValues]
     );
 
+    const handleChartDrop = useCallback(
+        (index, item) => {
+            setChartValues((prevKpiValues) => {
+                return prevKpiValues.map((value, i) => {
+                    if (i === index) {
+                        return { name: value.name, currValue: item.text };
+                    }
+                    return value;
+                });
+            });
+        },
+        [setChartValues]
+    );
+
+    const submitHandler = () => {
+        console.log("KPIs", kpiValues);
+        console.log("Charts", chartValues);
+    };
     return (
         <Drag>
-            <div className="box__row">
-                {kpiOptions &&
-                    kpiOptions.map((option, index) => {
-                        return (
-                            <Selection
-                                key={index}
-                                kpiValues={kpiValues}
-                                setKpiValues={setKpiValues}
-                                text={option}
-                            />
-                        );
-                    })}
+            <div className="selection__container">
+                <h3 className="selection__title">KPIs</h3>
+                <div className="selection__column">
+                    {kpiOptions &&
+                        kpiOptions.map((option, index) => {
+                            return (
+                                <Selection
+                                    key={index}
+                                    type="KPI"
+                                    text={option}
+                                />
+                            );
+                        })}
+                </div>
+                <h3 className="selection__title">Charts</h3>
+                <div className="selection__column">
+                    {chartOptions &&
+                        chartOptions.map((option, index) => {
+                            return (
+                                <Selection
+                                    key={index}
+                                    type="Chart"
+                                    text={option}
+                                />
+                            );
+                        })}
+                </div>
             </div>
-            <div className="selection-container">
+            <div className="bin__container">
                 <div className="bin__kpi-container">
                     <div className="bin__kpi-row">
                         {kpiValues.map((item, index) => {
@@ -109,7 +150,9 @@ const DragSection = memo(({ kpiOptions }) => {
                                 <KPIBin
                                     key={index}
                                     item={item}
-                                    onDrop={(item) => handleDrop(index, item)}
+                                    onDrop={(item) =>
+                                        handleKPIDrop(index, item)
+                                    }
                                 />
                             );
                         })}
@@ -121,12 +164,14 @@ const DragSection = memo(({ kpiOptions }) => {
                             <ChartBin
                                 key={index}
                                 item={item}
-                                onDrop={(item) => {}}
+                                onDrop={(item) => {
+                                    handleChartDrop(index, item);
+                                }}
                             />
                         );
                     })}
                 </div>
-                <Button text="Save" />
+                <Button text="Save" onClick={submitHandler} />
             </div>
         </Drag>
     );
