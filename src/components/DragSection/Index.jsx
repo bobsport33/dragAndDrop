@@ -1,9 +1,19 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+    DndContext,
+    closestCenter,
+    MouseSensor,
+    TouchSensor,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
 
 import Selection from "./Selection";
-import DropContainer from "./DropContainer";
+
 import Button from "../Button/Index";
 import { Colors } from "@/styles/variables";
 import {
@@ -97,7 +107,7 @@ const Drag = styled.div`
 `;
 
 const DragSection = ({ kpiOptions, chartOptions }) => {
-    const [containers, setContainers] = useState([
+    const [chartContainers, setChartContainers] = useState([
         {
             name: "initial Charts",
             charts: [
@@ -109,6 +119,14 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
         },
         { name: "selected Charts", charts: [{ id: 5, name: " placeholder" }] },
     ]);
+
+    const mouseSensor = useSensor(MouseSensor);
+    const touchSensor = useSensor(TouchSensor);
+
+    const sensors = useSensors(mouseSensor, touchSensor);
+
+    const handleDragMove = (event) => {};
+
     const handleDragEnd = (event) => {
         const { active, over } = event;
 
@@ -116,41 +134,42 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
             return;
         }
 
-        const sourceContainerIndex = containers.findIndex((container) =>
+        const sourceContainerIndex = chartContainers.findIndex((container) =>
             container.charts.find((chart) => chart.id === active.id)
         );
-        const destinationContainerIndex = containers.findIndex((container) =>
-            container.charts.find((chart) => chart.id === over.id)
+        const destinationContainerIndex = chartContainers.findIndex(
+            (container) =>
+                container.charts.find((chart) => chart.id === over.id)
         );
 
-        const draggedItem = containers[sourceContainerIndex].charts.find(
+        const draggedItem = chartContainers[sourceContainerIndex].charts.find(
             (chart) => chart.id === active.id
         );
 
         if (draggedItem && sourceContainerIndex !== destinationContainerIndex) {
             const updatedSourceContainer = {
-                ...containers[sourceContainerIndex],
-                charts: containers[sourceContainerIndex].charts.filter(
+                ...chartContainers[sourceContainerIndex],
+                charts: chartContainers[sourceContainerIndex].charts.filter(
                     (chart) => chart.id !== draggedItem.id
                 ),
             };
 
             const updatedDestinationContainer = {
-                ...containers[destinationContainerIndex],
+                ...chartContainers[destinationContainerIndex],
                 charts: [
-                    ...containers[destinationContainerIndex].charts,
+                    ...chartContainers[destinationContainerIndex].charts,
                     draggedItem,
                 ],
             };
 
-            const updatedContainers = [...containers];
+            const updatedContainers = [...chartContainers];
             updatedContainers[sourceContainerIndex] = updatedSourceContainer;
             updatedContainers[destinationContainerIndex] =
                 updatedDestinationContainer;
-            setContainers(updatedContainers);
+            setChartContainers(updatedContainers);
         } else {
             // Reorder items within the same container
-            const updatedContainers = [...containers];
+            const updatedContainers = [...chartContainers];
             const sourceCharts = updatedContainers[sourceContainerIndex].charts;
             const oldIndex = sourceCharts.findIndex(
                 (chart) => chart.id === active.id
@@ -166,34 +185,54 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
                 charts: reorderedCharts,
             };
 
-            setContainers(updatedContainers);
+            setChartContainers(updatedContainers);
         }
     };
 
     return (
         <DndContext
             collisionDetection={closestCenter}
+            onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
+            sensors={sensors}
         >
             <Drag>
                 <div className="selection__container">
-                    {containers.map((container) => {
+                    {chartContainers.map((container) => {
+                        const [showValues, setShowValues] = useState(false);
                         return (
                             <div className="selection__wrapper">
-                                <SortableContext
-                                    items={container.charts}
-                                    strategy={verticalListSortingStrategy}
-                                >
-                                    {container.charts.map((chart) => {
-                                        return (
-                                            <Selection
-                                                key={chart.id}
-                                                id={chart.id}
-                                                name={chart.name}
-                                            />
-                                        );
-                                    })}
-                                </SortableContext>
+                                <Accordion>
+                                    <AccordionSummary
+                                        onClick={() => setShowValues(true)}
+                                    >
+                                        Category
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        {showValues && (
+                                            <SortableContext
+                                                items={container.charts}
+                                                strategy={
+                                                    verticalListSortingStrategy
+                                                }
+                                            >
+                                                {container.charts.map(
+                                                    (chart) => {
+                                                        return (
+                                                            <Selection
+                                                                key={chart.id}
+                                                                id={chart.id}
+                                                                name={
+                                                                    chart.name
+                                                                }
+                                                            />
+                                                        );
+                                                    }
+                                                )}
+                                            </SortableContext>
+                                        )}
+                                    </AccordionDetails>
+                                </Accordion>
                             </div>
                         );
                     })}
