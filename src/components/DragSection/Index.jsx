@@ -7,6 +7,7 @@ import {
     TouchSensor,
     useSensor,
     useSensors,
+    DragOverlay,
 } from "@dnd-kit/core";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -238,6 +239,27 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
                     })}
                 </div>
             </Drag>
+            <DragOverlay>
+                {({ overlayRect, draggableNodes }) => {
+                    const activeNode = draggableNodes[0];
+                    console.log("active node", activeNode);
+                    if (!activeNode) return null;
+                    const { width, height } = overlayRect;
+                    return (
+                        <div
+                            style={{
+                                width,
+                                height,
+                                position: "absolute",
+                                pointerEvents: "none",
+                                transform: `translate(${overlayRect.left}px, ${overlayRect.top}px)`,
+                            }}
+                        >
+                            {activeNode}
+                        </div>
+                    );
+                }}
+            </DragOverlay>
         </DndContext>
     );
 };
