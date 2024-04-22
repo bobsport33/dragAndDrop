@@ -1,32 +1,27 @@
-import React, { memo } from "react";
-import styled from "styled-components";
-import { useDrag } from "react-dnd";
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-import { Colors } from "@/styles/variables";
+const Selection = ({ id, name }) => {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+        useSortable({ id: id });
 
-const SelectionContainer = styled.p`
-    font-size: 1.5rem;
-    padding: 10px;
-    border: 1px solid ${Colors.green};
-    height: 50px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-`;
+    const style = {
+        transition,
+        transform: CSS.Transform.toString(transform),
+    };
 
-const Selection = memo(({ text, type }) => {
-    const [collected, drag, dragPreview] = useDrag(() => ({
-        type: type,
-        item: { text },
-    }));
-
-    return collected.isDragging ? (
-        <SelectionContainer ref={dragPreview} />
-    ) : (
-        <SelectionContainer ref={drag} {...collected}>
-            {text}
-        </SelectionContainer>
+    return (
+        <div
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            style={style}
+            id={id}
+        >
+            {name}
+        </div>
     );
-});
+};
 
 export default Selection;

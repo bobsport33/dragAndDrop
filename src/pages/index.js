@@ -1,9 +1,8 @@
 import Head from "next/head";
 import { Inter } from "next/font/google";
+
 import Title from "@/components/title";
 import DragSection from "@/components/DragSection/Index";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,15 +34,14 @@ export default function Home() {
                 />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <DndProvider backend={HTML5Backend}>
-                <main>
-                    <Title />
-                    <DragSection
-                        kpiOptions={kpiOptions}
-                        chartOptions={chartOptions}
-                    />
-                </main>
-            </DndProvider>
+
+            <main>
+                <Title />
+                <DragSection
+                    kpiOptions={kpiOptions}
+                    chartOptions={chartOptions}
+                />
+            </main>
         </>
     );
 }

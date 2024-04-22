@@ -1,11 +1,16 @@
-import React, { useState, memo, useCallback } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { DndContext, closestCenter } from "@dnd-kit/core";
 
 import Selection from "./Selection";
-import KPIBin from "./KPIBin";
-import ChartBin from "./ChartBin";
+import DropContainer from "./DropContainer";
 import Button from "../Button/Index";
 import { Colors } from "@/styles/variables";
+import {
+    SortableContext,
+    arrayMove,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 const Drag = styled.div`
     min-width: 90vw;
@@ -17,16 +22,16 @@ const Drag = styled.div`
     color: ${Colors.lightGreen};
     padding: 20px;
     display: flex;
-
+    flex-direction: row;
     align-items: flex-start;
     gap: 30px;
 
     .selection {
         &__container {
-            width: 20%;
+            width: 80%;
             height: 100%;
             display: flex;
-            flex-direction: column;
+
             gap: 5px;
         }
         &__column {
@@ -64,117 +69,138 @@ const Drag = styled.div`
             width: 100%;
         }
     }
+
+    .selection__column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .drop-containers {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .chart-container {
+        height: 400px;
+        width: 400px;
+        border: 1px dashed black;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .selection__wrapper {
+        height: 800px;
+        background-color: #fafafa;
+        width: 300px;
+    }
 `;
 
-const DragSection = memo(({ kpiOptions, chartOptions }) => {
-    const [kpiValues, setKpiValues] = useState([
-        { name: "KPI1", currValue: "" },
-        { name: "KPI2", currValue: "" },
-        { name: "KPI3", currValue: "" },
-        { name: "KPI4", currValue: "" },
-        { name: "KPI5", currValue: "" },
-    ]);
-
-    const [chartValues, setChartValues] = useState([
-        { name: "chart1", currValue: "" },
-        { name: "chart2", currValue: "" },
-    ]);
-
-    const handleKPIDrop = useCallback(
-        (index, item) => {
-            setKpiValues((prevKpiValues) => {
-                return prevKpiValues.map((value, i) => {
-                    if (i === index) {
-                        return { name: value.name, currValue: item.text };
-                    }
-                    return value;
-                });
-            });
+const DragSection = ({ kpiOptions, chartOptions }) => {
+    const [containers, setContainers] = useState([
+        {
+            name: "initial Charts",
+            charts: [
+                { id: 1, name: "Total Questions" },
+                { id: 2, name: "Total Open Quesstions" },
+                { id: 3, name: "Total Open Cases" },
+                { id: 4, name: "Total Cases" },
+            ],
         },
-        [setKpiValues]
-    );
+        { name: "selected Charts", charts: [{ id: 5, name: " placeholder" }] },
+    ]);
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
 
-    const handleChartDrop = useCallback(
-        (index, item) => {
-            setChartValues((prevKpiValues) => {
-                return prevKpiValues.map((value, i) => {
-                    if (i === index) {
-                        return { name: value.name, currValue: item.text };
-                    }
-                    return value;
-                });
-            });
-        },
-        [setChartValues]
-    );
+        if (!over || active.id === over.id) {
+            return;
+        }
 
-    const submitHandler = () => {
-        console.log("KPIs", kpiValues);
-        console.log("Charts", chartValues);
+        const sourceContainerIndex = containers.findIndex((container) =>
+            container.charts.find((chart) => chart.id === active.id)
+        );
+        const destinationContainerIndex = containers.findIndex((container) =>
+            container.charts.find((chart) => chart.id === over.id)
+        );
+
+        const draggedItem = containers[sourceContainerIndex].charts.find(
+            (chart) => chart.id === active.id
+        );
+
+        if (draggedItem && sourceContainerIndex !== destinationContainerIndex) {
+            const updatedSourceContainer = {
+                ...containers[sourceContainerIndex],
+                charts: containers[sourceContainerIndex].charts.filter(
+                    (chart) => chart.id !== draggedItem.id
+                ),
+            };
+
+            const updatedDestinationContainer = {
+                ...containers[destinationContainerIndex],
+                charts: [
+                    ...containers[destinationContainerIndex].charts,
+                    draggedItem,
+                ],
+            };
+
+            const updatedContainers = [...containers];
+            updatedContainers[sourceContainerIndex] = updatedSourceContainer;
+            updatedContainers[destinationContainerIndex] =
+                updatedDestinationContainer;
+            setContainers(updatedContainers);
+        } else {
+            // Reorder items within the same container
+            const updatedContainers = [...containers];
+            const sourceCharts = updatedContainers[sourceContainerIndex].charts;
+            const oldIndex = sourceCharts.findIndex(
+                (chart) => chart.id === active.id
+            );
+            const newIndex = sourceCharts.findIndex(
+                (chart) => chart.id === over.id
+            );
+
+            const reorderedCharts = arrayMove(sourceCharts, oldIndex, newIndex);
+
+            updatedContainers[sourceContainerIndex] = {
+                ...updatedContainers[sourceContainerIndex],
+                charts: reorderedCharts,
+            };
+
+            setContainers(updatedContainers);
+        }
     };
+
     return (
-        <Drag>
-            <div className="selection__container">
-                <h3 className="selection__title">KPIs</h3>
-                <div className="selection__column">
-                    {kpiOptions &&
-                        kpiOptions.map((option, index) => {
-                            return (
-                                <Selection
-                                    key={index}
-                                    type="KPI"
-                                    text={option}
-                                />
-                            );
-                        })}
-                </div>
-                <h3 className="selection__title">Charts</h3>
-                <div className="selection__column">
-                    {chartOptions &&
-                        chartOptions.map((option, index) => {
-                            return (
-                                <Selection
-                                    key={index}
-                                    type="Chart"
-                                    text={option}
-                                />
-                            );
-                        })}
-                </div>
-            </div>
-            <div className="bin__container">
-                <div className="bin__kpi-container">
-                    <div className="bin__kpi-row">
-                        {kpiValues.map((item, index) => {
-                            return (
-                                <KPIBin
-                                    key={index}
-                                    item={item}
-                                    onDrop={(item) =>
-                                        handleKPIDrop(index, item)
-                                    }
-                                />
-                            );
-                        })}
-                    </div>
-                </div>
-                <div className="bin__chart-container">
-                    {chartValues.map((item, index) => {
+        <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+        >
+            <Drag>
+                <div className="selection__container">
+                    {containers.map((container) => {
                         return (
-                            <ChartBin
-                                key={index}
-                                item={item}
-                                onDrop={(item) => {
-                                    handleChartDrop(index, item);
-                                }}
-                            />
+                            <div className="selection__wrapper">
+                                <SortableContext
+                                    items={container.charts}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    {container.charts.map((chart) => {
+                                        return (
+                                            <Selection
+                                                key={chart.id}
+                                                id={chart.id}
+                                                name={chart.name}
+                                            />
+                                        );
+                                    })}
+                                </SortableContext>
+                            </div>
                         );
                     })}
                 </div>
-                <Button text="Save" onClick={submitHandler} />
-            </div>
-        </Drag>
+            </Drag>
+        </DndContext>
     );
-});
+};
 
 export default DragSection;
