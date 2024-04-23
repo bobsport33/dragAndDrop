@@ -1,6 +1,16 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import styled from "styled-components";
+
+const SelectorContainer = styled.div`
+    padding: 10px;
+    border: 1px black solid;
+
+    &:hover {
+        cursor: grab;
+    }
+`;
 
 const Selection = ({ id, name }) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
@@ -12,7 +22,7 @@ const Selection = ({ id, name }) => {
     };
 
     return (
-        <div
+        <SelectorContainer
             ref={setNodeRef}
             {...attributes}
             {...listeners}
@@ -20,7 +30,7 @@ const Selection = ({ id, name }) => {
             id={id}
         >
             {name}
-        </div>
+        </SelectorContainer>
     );
 };
 

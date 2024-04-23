@@ -8,6 +8,7 @@ import {
     useSensor,
     useSensors,
     DragOverlay,
+    useDroppable,
 } from "@dnd-kit/core";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -105,6 +106,14 @@ const Drag = styled.div`
         background-color: #fafafa;
         width: 300px;
     }
+
+    .drop-container {
+        min-height: 300px;
+        min-width: 300px;
+        height: 300px;
+        width: 300px;
+        border: 1px dashed black;
+    }
 `;
 
 const DragSection = ({ kpiOptions, chartOptions }) => {
@@ -118,13 +127,21 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
                 { id: 4, name: "Total Cases" },
             ],
         },
-        { name: "selected Charts", charts: [{ id: 5, name: " placeholder" }] },
+        { name: "selected Charts", charts: [{ id: 5, name: "placeholder" }] },
     ]);
+
+    const [activeId, setActiveId] = useState(null);
 
     const mouseSensor = useSensor(MouseSensor);
     const touchSensor = useSensor(TouchSensor);
 
     const sensors = useSensors(mouseSensor, touchSensor);
+
+    const handleDragStart = (event) => {
+        const { active } = event;
+        const { id } = active;
+        setActiveId(id);
+    };
 
     const handleDragMove = (event) => {};
 
@@ -168,6 +185,8 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
             updatedContainers[destinationContainerIndex] =
                 updatedDestinationContainer;
             setChartContainers(updatedContainers);
+
+            setActiveId(null);
         } else {
             // Reorder items within the same container
             const updatedContainers = [...chartContainers];
@@ -190,75 +209,116 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
         }
     };
 
+    const getNameFromId = (id) => {
+        // return name associated with the provided id
+
+        for (const container of chartContainers) {
+            const chart = container.charts.find((chart) => chart.id === id);
+            if (chart) {
+                return chart.name; // Return the name if found
+            }
+        }
+        return ""; // Return an empty string if no matching id is found
+    };
+
     return (
         <DndContext
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
             sensors={sensors}
         >
             <Drag>
                 <div className="selection__container">
-                    {chartContainers.map((container) => {
-                        const [showValues, setShowValues] = useState(false);
-                        return (
-                            <div className="selection__wrapper">
-                                <Accordion>
-                                    <AccordionSummary
-                                        onClick={() => setShowValues(true)}
-                                    >
-                                        Category
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                        {showValues && (
-                                            <SortableContext
-                                                items={container.charts}
-                                                strategy={
-                                                    verticalListSortingStrategy
-                                                }
-                                            >
-                                                {container.charts.map(
-                                                    (chart) => {
-                                                        return (
-                                                            <Selection
-                                                                key={chart.id}
-                                                                id={chart.id}
-                                                                name={
-                                                                    chart.name
-                                                                }
-                                                            />
-                                                        );
+                    {chartContainers.map((container, index) => {
+                        if (index === 0) {
+                            const [showValues, setShowValues] = useState(false);
+                            return (
+                                <div
+                                    key={container.name}
+                                    className="selection__wrapper"
+                                >
+                                    <Accordion>
+                                        <AccordionSummary
+                                            onClick={() => setShowValues(true)}
+                                        >
+                                            Category
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            {showValues && (
+                                                <SortableContext
+                                                    items={container.charts}
+                                                    strategy={
+                                                        verticalListSortingStrategy
                                                     }
-                                                )}
-                                            </SortableContext>
-                                        )}
-                                    </AccordionDetails>
-                                </Accordion>
-                            </div>
-                        );
+                                                >
+                                                    {container.charts.map(
+                                                        (chart) => {
+                                                            return (
+                                                                <Selection
+                                                                    key={
+                                                                        chart.id
+                                                                    }
+                                                                    id={
+                                                                        chart.id
+                                                                    }
+                                                                    name={
+                                                                        chart.name
+                                                                    }
+                                                                />
+                                                            );
+                                                        }
+                                                    )}
+                                                </SortableContext>
+                                            )}
+                                        </AccordionDetails>
+                                    </Accordion>
+                                </div>
+                            );
+                        } else {
+                            const { setNodeRef } = useDroppable({
+                                id: container.name,
+                            });
+
+                            return (
+                                <div
+                                    key={container.name}
+                                    className="drop-container"
+                                    ref={setNodeRef}
+                                >
+                                    <SortableContext
+                                        items={
+                                            container.charts.length > 0
+                                                ? container.charts
+                                                : []
+                                        }
+                                        strategy={verticalListSortingStrategy}
+                                        style={{
+                                            height: "100%",
+                                            width: "100%",
+                                        }}
+                                    >
+                                        {container.charts.map((chart) => {
+                                            return (
+                                                <Selection
+                                                    key={chart.id}
+                                                    id={chart.id}
+                                                    name={chart.name}
+                                                />
+                                            );
+                                        })}
+                                    </SortableContext>
+                                </div>
+                            );
+                        }
                     })}
                 </div>
             </Drag>
             <DragOverlay>
-                {({ overlayRect, draggableNodes }) => {
-                    const activeNode = draggableNodes[0];
-                    console.log("active node", activeNode);
-                    if (!activeNode) return null;
-                    const { width, height } = overlayRect;
-                    return (
-                        <div
-                            style={{
-                                width,
-                                height,
-                                position: "absolute",
-                                pointerEvents: "none",
-                                transform: `translate(${overlayRect.left}px, ${overlayRect.top}px)`,
-                            }}
-                        >
-                            {activeNode}
-                        </div>
-                    );
-                }}
+                {activeId && (
+                    <Selection id={activeId} name={getNameFromId(activeId)} />
+                )}
             </DragOverlay>
         </DndContext>
     );
