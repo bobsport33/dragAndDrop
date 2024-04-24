@@ -105,6 +105,11 @@ const Drag = styled.div`
         height: 800px;
         background-color: #fafafa;
         width: 300px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
     }
 
     .drop-container {
@@ -113,6 +118,11 @@ const Drag = styled.div`
         height: 300px;
         width: 300px;
         border: 1px dashed black;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
     }
 `;
 
@@ -143,10 +153,11 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
         setActiveId(id);
     };
 
-    const handleDragMove = (event) => {};
+    // const handleDragMove = (event) => {};
 
     const handleDragEnd = (event) => {
         const { active, over } = event;
+        console.log("end", active, over);
 
         if (!over || active.id === over.id) {
             return;
@@ -209,6 +220,12 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
         }
     };
 
+    const handleDragOver = (event) => {
+        const { active, over } = event;
+
+        console.log(active, over);
+    };
+
     const getNameFromId = (id) => {
         // return name associated with the provided id
 
@@ -225,7 +242,8 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
         <DndContext
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}
-            onDragMove={handleDragMove}
+            onDragOver={handleDragOver}
+            // onDragMove={handleDragMove}
             onDragEnd={handleDragEnd}
             sensors={sensors}
         >
@@ -277,37 +295,25 @@ const DragSection = ({ kpiOptions, chartOptions }) => {
                                 </div>
                             );
                         } else {
-                            const { setNodeRef } = useDroppable({
-                                id: container.name,
-                            });
-
                             return (
                                 <div
                                     key={container.name}
                                     className="drop-container"
-                                    ref={setNodeRef}
                                 >
                                     <SortableContext
-                                        items={
-                                            container.charts.length > 0
-                                                ? container.charts
-                                                : []
-                                        }
+                                        items={container.charts}
                                         strategy={verticalListSortingStrategy}
-                                        style={{
-                                            height: "100%",
-                                            width: "100%",
-                                        }}
                                     >
-                                        {container.charts.map((chart) => {
-                                            return (
-                                                <Selection
-                                                    key={chart.id}
-                                                    id={chart.id}
-                                                    name={chart.name}
-                                                />
-                                            );
-                                        })}
+                                        <p style={{ opacity: 0, height: 0 }}>
+                                            Invisible item
+                                        </p>
+                                        {container.charts.map((chart) => (
+                                            <Selection
+                                                key={chart.id}
+                                                id={chart.id}
+                                                name={chart.name}
+                                            />
+                                        ))}
                                     </SortableContext>
                                 </div>
                             );
