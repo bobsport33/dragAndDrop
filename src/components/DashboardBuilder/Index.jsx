@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import styled from "styled-components";
+import { styled } from "@mui/material";
 import ColumnContainer from "./ColumnContainer";
 import {
     DndContext,
@@ -12,10 +12,13 @@ import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import TaskCard from "./TaskCard";
+import SelectionAccordion from "./SelectionAccordion";
+import ChartContainer from "./ChartContainer";
 
-const Dashboard = styled.div`
+const Dashboard = styled("div")`
     display: flex;
     height: 100%;
     width: 100%;
@@ -30,6 +33,15 @@ const Dashboard = styled.div`
             width: 80%;
             padding: 15px;
         }
+        &__selection-summary {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        &__category-title {
+            font-size: 1.3rem;
+        }
 
         &__kpi-row {
             position: relative;
@@ -38,6 +50,12 @@ const Dashboard = styled.div`
             display: flex;
             gap: 20px;
             overflow-x: scroll;
+        }
+
+        &__chart-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
         }
         &__container {
             margin: 0 auto;
@@ -155,6 +173,24 @@ const DashboardBuilder = () => {
             });
     }, [tasks]);
 
+    const [charts, setCharts] = useState([
+        { content: "Questions Over Time", id: "", columnId: "" },
+        { content: "Questions by Turnaround Time", id: "", columnId: "" },
+        { content: "Questions by Topic", id: "", columnId: "" },
+        { content: "Questions by Status", id: "", columnId: "" },
+    ]);
+
+    // Array of IDs for the SortableContext in the main dropdown
+    const defaultChartIds = useMemo(() => {
+        return charts
+            .filter((chart) => {
+                return chart.columnId === "";
+            })
+            .map((chart) => {
+                return chart.id;
+            });
+    }, [tasks]);
+
     // Logic for carousel buttons for the kpi row
     const [kpiCardIndex, setKpiCardIndex] = useState(0);
     const carousel = useRef(null);
@@ -193,22 +229,6 @@ const DashboardBuilder = () => {
             },
         })
     );
-
-    // phase out/remove
-    const generateId = () => {
-        return Math.floor(Math.random() * 10001);
-    };
-
-    // phase out/remove
-    const createTask = (columnId) => {
-        const newTask = {
-            id: generateId(),
-            columnId,
-            content: `Task ${tasks.length + 1}`,
-        };
-
-        setTasks([...tasks, newTask]);
-    };
 
     // removes a kpi from a container and adds it back to the main list
     const deleteTask = (id) => {
@@ -318,24 +338,16 @@ const DashboardBuilder = () => {
                 sensors={sensors}
             >
                 <div className="dashboard__selections-container">
-                    <Accordion>
-                        <AccordionSummary>
-                            <h5>KPIs</h5>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            {defaultTaskIds && (
-                                <SortableContext items={defaultTaskIds}>
-                                    {tasks
-                                        .filter((task) => {
-                                            return task.columnId === "";
-                                        })
-                                        .map((task) => {
-                                            return <TaskCard task={task} />;
-                                        })}
-                                </SortableContext>
-                            )}
-                        </AccordionDetails>
-                    </Accordion>
+                    <SelectionAccordion
+                        title="KPI"
+                        selections={tasks}
+                        defaultIds={defaultTaskIds}
+                    />
+                    <SelectionAccordion
+                        title="Charts"
+                        selections={charts}
+                        defaultIds={defaultChartIds}
+                    />
                 </div>
                 <div className="dashboard__builder-container">
                     <div className="dashboard__kpi-row">
@@ -360,7 +372,6 @@ const DashboardBuilder = () => {
                                         <ColumnContainer
                                             key={col.id}
                                             column={col}
-                                            createTask={createTask}
                                             tasks={tasks.filter(
                                                 (task) =>
                                                     task.columnId === col.id
@@ -371,6 +382,15 @@ const DashboardBuilder = () => {
                                 })}
                             </SortableContext>{" "}
                         </div>
+                    </div>
+                    <div className="dashboard__chart-row">
+                        <ChartContainer
+                            column="chart"
+                            charts={charts.filter(
+                                (chart) => chart.columnId === "chart"
+                            )}
+                            deleteTask={deleteTask}
+                        />
                     </div>
                 </div>
                 {

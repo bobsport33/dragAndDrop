@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 const Task = styled.div`
     background-color: white;
@@ -12,6 +14,21 @@ const Task = styled.div`
     align-items: center;
     justify-content: space-between;
     padding: 10px;
+
+    .task {
+        &__button {
+            background-color: transparent;
+            border: none;
+
+            svg {
+                pointer-events: none;
+            }
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
 
     &:hover {
         cursor: grab;
@@ -64,8 +81,14 @@ const TaskCard = ({ task, deleteTask }) => {
             onMouseLeave={() => setMouseIsOver(false)}
         >
             {task.content}
-            {mouseIsOver && task.columnId !== "" && (
-                <button onClick={() => deleteTask(task.id)}>remove</button>
+            <DragIndicatorIcon />
+            {mouseIsOver && !isDragging && task.columnId !== "" && (
+                <button
+                    className="task__button"
+                    onClick={() => deleteTask(task.id)}
+                >
+                    <DeleteIcon />
+                </button>
             )}
         </Task>
     );

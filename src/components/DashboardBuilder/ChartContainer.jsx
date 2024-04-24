@@ -6,8 +6,8 @@ import TaskCard from "./TaskCard";
 
 const Column = styled.div`
     background-color: transparent;
-    width: 20%;
-    height: 200px;
+    width: 50%;
+    height: 350px;
     border-radius: 10px;
     border: 1px dashed black;
     display: flex;
@@ -55,7 +55,7 @@ const BackgroundColumn = styled.div`
     overflow: hidden;
 `;
 
-const ColumnContainer = ({ column, tasks, deleteTask }) => {
+const ChartContainer = ({ column, charts, deleteTask }) => {
     const {
         setNodeRef,
         attributes,
@@ -64,10 +64,10 @@ const ColumnContainer = ({ column, tasks, deleteTask }) => {
         transition,
         isDragging,
     } = useSortable({
-        id: column.id,
+        id: "charts",
         data: {
-            type: "column",
-            column,
+            type: "chart",
+            charts,
         },
     });
 
@@ -76,9 +76,9 @@ const ColumnContainer = ({ column, tasks, deleteTask }) => {
         transform: CSS.Transform.toString(transform),
     };
 
-    const tasksIds = useMemo(() => {
-        return tasks.map((task) => task.id);
-    }, [tasks]);
+    const chartIds = useMemo(() => {
+        return charts.map((chart) => chart.id);
+    }, [charts]);
 
     if (isDragging) {
         return (
@@ -88,12 +88,12 @@ const ColumnContainer = ({ column, tasks, deleteTask }) => {
     return (
         <Column ref={setNodeRef} style={style}>
             <div className="column__content">
-                <SortableContext items={tasksIds}>
-                    {tasks.map((task) => {
+                <SortableContext items={chartIds}>
+                    {charts.map((chart) => {
                         return (
                             <TaskCard
-                                key={task.id}
-                                task={task}
+                                key={chart.id}
+                                task={chart}
                                 deleteTask={deleteTask}
                             />
                         );
@@ -104,4 +104,4 @@ const ColumnContainer = ({ column, tasks, deleteTask }) => {
     );
 };
 
-export default ColumnContainer;
+export default ChartContainer;
