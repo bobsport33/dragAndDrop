@@ -5,30 +5,33 @@ import styled from "styled-components";
 import TaskCard from "./TaskCard";
 
 const Column = styled.div`
-    background-color: transparent;
-    width: 20%;
-    height: 200px;
+    background-color: #333;
+    width: 350px;
+    height: 500px;
     border-radius: 10px;
-    border: 1px dashed black;
     display: flex;
     flex-direction: column;
     color: #fafafa;
     border-radius: 10px;
     overflow: hidden;
-    flex-shrink: 0;
 
     .column {
         &__background {
             opacity: 0.6;
         }
-
+        &__title {
+            height: 60px;
+            background-color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
         &__content {
             padding: 20px;
             gap: 20px;
             display: flex;
             flex-direction: column;
-            align-items: stretch;
-            justify-content: center;
             flex-grow: 1;
         }
 
@@ -44,7 +47,7 @@ const BackgroundColumn = styled.div`
     opacity: 0.6;
     border: 2px solid red;
     background-color: #333;
-    width: 20%;
+    width: 350px;
     height: 500px;
     border-radius: 10px;
     display: flex;
@@ -56,7 +59,8 @@ const BackgroundColumn = styled.div`
 
 const ColumnContainer = ({
     column,
-
+    deleteColumn,
+    createTask,
     tasks,
     deleteTask,
 }) => {
@@ -91,6 +95,15 @@ const ColumnContainer = ({
     }
     return (
         <Column ref={setNodeRef} style={style}>
+            <div className="column__title" {...attributes} {...listeners}>
+                {column.title}{" "}
+                <button
+                    className="column__delete-btn"
+                    onClick={() => deleteColumn(column.id)}
+                >
+                    delete
+                </button>
+            </div>
             <div className="column__content">
                 <SortableContext items={tasksIds}>
                     {tasks.map((task) => {
@@ -104,6 +117,12 @@ const ColumnContainer = ({
                     })}
                 </SortableContext>
             </div>
+            <button
+                className="column__add-btn"
+                onClick={() => createTask(column.id)}
+            >
+                Add Task
+            </button>
         </Column>
     );
 };

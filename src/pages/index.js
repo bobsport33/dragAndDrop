@@ -3,7 +3,8 @@ import { Inter } from "next/font/google";
 
 import Title from "@/components/title";
 import DragSection from "@/components/DragSection/Index";
-import DndBoard from "@/components/DashboardBuilder/Index";
+import DndBoard from "@/components/Kanban/Index";
+import Kanban from "@/components/Kanban/Index";
 import DashboardBuilder from "@/components/DashboardBuilder/Index";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -43,6 +44,7 @@ export default function Home() {
                     kpiOptions={kpiOptions}
                     chartOptions={chartOptions}
                 /> */}
+                {/* <Kanban /> */}
                 <DashboardBuilder />
             </main>
         </>

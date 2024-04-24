@@ -4,18 +4,13 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 const Task = styled.div`
-    background-color: white;
-    border: 1px solid black;
+    background-color: darkgray;
     color: black;
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px;
-
-    &:hover {
-        cursor: grab;
-    }
 `;
 const DraggingTask = styled.div`
     background-color: darkgray;
@@ -64,7 +59,7 @@ const TaskCard = ({ task, deleteTask }) => {
             onMouseLeave={() => setMouseIsOver(false)}
         >
             {task.content}
-            {mouseIsOver && task.columnId !== "" && (
+            {mouseIsOver && (
                 <button onClick={() => deleteTask(task.id)}>remove</button>
             )}
         </Task>
