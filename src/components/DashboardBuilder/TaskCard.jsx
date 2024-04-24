@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import { styled } from "@mui/material";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
-const Task = styled.div`
+const Task = styled("div")`
     background-color: white;
     border: 1px solid black;
     color: black;
@@ -34,7 +34,7 @@ const Task = styled.div`
         cursor: grab;
     }
 `;
-const DraggingTask = styled.div`
+const DraggingTask = styled("div")`
     background-color: darkgray;
     color: black;
     height: 60px;
@@ -45,7 +45,7 @@ const DraggingTask = styled.div`
     opacity: 0.6;
     border: 2px solid red;
 `;
-const TaskCard = ({ task, deleteTask }) => {
+const TaskCard = ({ task, deleteTask, type }) => {
     const [mouseIsOver, setMouseIsOver] = useState(false);
 
     const {
@@ -58,7 +58,7 @@ const TaskCard = ({ task, deleteTask }) => {
     } = useSortable({
         id: task.id,
         data: {
-            type: "task",
+            type: type,
             task,
         },
     });

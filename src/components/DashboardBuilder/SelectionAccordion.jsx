@@ -21,7 +21,7 @@ const AccordionContainer = styled("div")`
     }
 `;
 
-const SelectionAccordion = ({ title, defaultIds, selections }) => {
+const SelectionAccordion = ({ title, defaultIds, selections, type }) => {
     return (
         <AccordionContainer>
             <Accordion>
@@ -38,7 +38,11 @@ const SelectionAccordion = ({ title, defaultIds, selections }) => {
                                 })
                                 .map((task) => {
                                     return (
-                                        <TaskCard key={task.id} task={task} />
+                                        <TaskCard
+                                            key={task.id}
+                                            task={task}
+                                            type={type}
+                                        />
                                     );
                                 })}
                         </SortableContext>

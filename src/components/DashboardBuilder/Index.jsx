@@ -9,10 +9,8 @@ import {
     PointerSensor,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
-import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 import TaskCard from "./TaskCard";
 import SelectionAccordion from "./SelectionAccordion";
@@ -111,12 +109,13 @@ const DashboardBuilder = () => {
         { id: "kpi9" },
     ]);
 
-    // array of IDs for sortableContext
+    // array of IDs for sortableContext, updates when columns updates
     const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
 
     // activeColumn and activeTask are for the DragOverlay function
     const [activeColumn, setActiveColumn] = useState(null);
     const [activeTask, setActiveTask] = useState(null);
+    const [activeChart, setActiveChart] = useState(null);
 
     // Initial kpis, will need to set based off user favorites
     const [tasks, setTasks] = useState([
@@ -174,10 +173,36 @@ const DashboardBuilder = () => {
     }, [tasks]);
 
     const [charts, setCharts] = useState([
-        { content: "Questions Over Time", id: "", columnId: "" },
-        { content: "Questions by Turnaround Time", id: "", columnId: "" },
-        { content: "Questions by Topic", id: "", columnId: "" },
-        { content: "Questions by Status", id: "", columnId: "" },
+        {
+            content: "Questions by Category",
+            id: "5364344a-0dd5-4430-aa84-7ac60f7864f0",
+            columnId: "",
+        },
+        {
+            content: "Questions by Classification",
+            id: "b5b6de67-db1f-47a2-adec-dcac5321c888",
+            columnId: "",
+        },
+        {
+            content: "Questions by Current Owner",
+            id: "70a48317-ec57-438e-9309-f750758209cd",
+            columnId: "",
+        },
+        {
+            content: "Questions by Divisoin",
+            id: "d32ed392-e742-4fff-97d1-d3220440155c",
+            columnId: "",
+        },
+        {
+            content: "Questions by Global Product",
+            id: "1362b355-e4fe-4b7e-9cc8-2a370a38584a",
+            columnId: "",
+        },
+        {
+            content: "Questions by Product Code",
+            id: "548ebd4d-ddd8-4112-af82-40307dcf75f4",
+            columnId: "",
+        },
     ]);
 
     // Array of IDs for the SortableContext in the main dropdown
@@ -189,7 +214,7 @@ const DashboardBuilder = () => {
             .map((chart) => {
                 return chart.id;
             });
-    }, [tasks]);
+    }, [charts]);
 
     // Logic for carousel buttons for the kpi row
     const [kpiCardIndex, setKpiCardIndex] = useState(0);
@@ -244,6 +269,7 @@ const DashboardBuilder = () => {
 
     // function to handle dnd kit drag start
     const onDragStart = (event) => {
+        console.log("start", event);
         if (event.active.data.current?.type === "column") {
             setActiveColumn(event.active.data.current.column);
             return;
@@ -252,11 +278,15 @@ const DashboardBuilder = () => {
             setActiveTask(event.active.data.current.task);
             return;
         }
+        if (event.active.data.current?.type === "chart") {
+            setActiveChart(event.active.data.current.task);
+        }
     };
 
     // function to handle dnd kit onDragOver. Will move kpis to other containers on hover
     const onDragOver = (event) => {
         const { active, over } = event;
+        console.log("over", active, over);
         if (!over) {
             return;
         }
@@ -271,6 +301,7 @@ const DashboardBuilder = () => {
         const isActiveATask = active.data.current?.type === "task";
         const isOverATask = over.data.current?.type === "task";
 
+        console.log("is active a task", isActiveATask);
         if (!isActiveATask) {
             return;
         }
@@ -307,6 +338,7 @@ const DashboardBuilder = () => {
     const onDragEnd = (event) => {
         setActiveColumn(null);
         setActiveTask(null);
+        setActiveChart(null);
         const { active, over } = event;
         if (!over) {
             return;
@@ -342,11 +374,13 @@ const DashboardBuilder = () => {
                         title="KPI"
                         selections={tasks}
                         defaultIds={defaultTaskIds}
+                        type="task"
                     />
                     <SelectionAccordion
                         title="Charts"
                         selections={charts}
                         defaultIds={defaultChartIds}
+                        type="chart"
                     />
                 </div>
                 <div className="dashboard__builder-container">
@@ -395,17 +429,10 @@ const DashboardBuilder = () => {
                 </div>
                 {
                     <DragOverlay>
-                        {activeColumn && (
-                            <ColumnContainer
-                                column={activeColumn}
-                                createTask={createTask}
-                                tasks={tasks.filter(
-                                    (task) => task.columnId === activeColumn.id
-                                )}
-                                deleteTask={deleteTask}
-                            />
-                        )}
                         {activeTask && <TaskCard task={activeTask} />}
+                        {activeChart && (
+                            <TaskCard task={activeChart} type="chart" />
+                        )}
                     </DragOverlay>
                 }
             </DndContext>

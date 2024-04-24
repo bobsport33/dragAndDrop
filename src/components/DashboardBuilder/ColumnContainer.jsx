@@ -1,10 +1,10 @@
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import { styled } from "@mui/material";
 import TaskCard from "./TaskCard";
 
-const Column = styled.div`
+const Column = styled("div")`
     background-color: transparent;
     width: 20%;
     height: 200px;
@@ -41,7 +41,7 @@ const Column = styled.div`
         }
     }
 `;
-const BackgroundColumn = styled.div`
+const BackgroundColumn = styled("div")`
     opacity: 0.6;
     border: 2px solid red;
     background-color: #333;
