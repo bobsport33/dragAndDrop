@@ -301,8 +301,10 @@ const DashboardBuilder = () => {
         const isActiveATask = active.data.current?.type === "task";
         const isOverATask = over.data.current?.type === "task";
 
-        console.log("is active a task", isActiveATask);
-        if (!isActiveATask) {
+        const isActiveAChart = active.data.current?.type === "chart";
+        const isOverAChart = over.data.current?.type === "chart";
+
+        if (!isActiveATask && !isActiveAChart) {
             return;
         }
         // Dropping a task over another task
@@ -317,6 +319,21 @@ const DashboardBuilder = () => {
                 }
 
                 return arrayMove(tasks, activeIndex, overIndex);
+            });
+        }
+
+        if (isActiveAChart && isOverAChart) {
+            setCharts((charts) => {
+                const activeIndex = charts.findIndex((t) => t.id === activeId);
+                const overIndex = charts.findIndex((t) => t.id === overId);
+
+                // if (
+                //     charts[activeIndex].columnId != charts[overIndex].columnId
+                // ) {
+                //     charts[activeIndex].columnId === charts[overIndex].columnId;
+                //     return arrayMove(charts, activeIndex, overIndex - 1);
+                // }
+                return arrayMove(charts, activeIndex, overIndex);
             });
         }
 
