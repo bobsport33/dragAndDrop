@@ -2,8 +2,7 @@ import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React, { useMemo } from "react";
 import { styled } from "@mui/material";
-import TaskCard from "./TaskCard";
-
+import ChartCard from "./ChartCard";
 const Column = styled("div")`
     background-color: transparent;
     width: 50%;
@@ -91,9 +90,10 @@ const ChartContainer = ({ column, charts, deleteTask }) => {
                 <SortableContext items={chartIds}>
                     {charts.map((chart) => {
                         return (
-                            <TaskCard
+                            <ChartCard
                                 key={chart.id}
                                 task={chart}
+                                type="chart"
                                 deleteTask={deleteTask}
                             />
                         );

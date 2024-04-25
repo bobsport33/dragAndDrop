@@ -5,11 +5,12 @@ import { styled } from "@mui/material";
 import TaskCard from "./TaskCard";
 
 const Column = styled("div")`
-    background-color: transparent;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    background-color: darkgray;
     width: 20%;
     height: 200px;
     border-radius: 10px;
-    border: 1px dashed black;
+    border: 1px solid gray;
     display: flex;
     flex-direction: column;
     color: #fafafa;

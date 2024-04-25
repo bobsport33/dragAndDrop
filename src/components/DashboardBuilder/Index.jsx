@@ -17,6 +17,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import TaskCard from "./TaskCard";
 import SelectionAccordion from "./SelectionAccordion";
 import ChartContainer from "./ChartContainer";
+import ChartCard from "./ChartCard";
 
 const Dashboard = styled("div")`
     display: flex;
@@ -56,6 +57,8 @@ const Dashboard = styled("div")`
             display: flex;
             justify-content: center;
             margin-top: 50px;
+            gap: 10px;
+            align-items: flex-end;
         }
         &__container {
             margin: 0 auto;
@@ -93,6 +96,11 @@ const Dashboard = styled("div")`
                 right: -16px;
             }
         }
+
+        &__save-btn {
+            height: fit-content;
+            padding: 10px;
+        }
     }
 `;
 
@@ -117,6 +125,7 @@ const DashboardBuilder = () => {
     // activeColumn and activeTask are for the DragOverlay function
     const [activeColumn, setActiveColumn] = useState(null);
     const [activeTask, setActiveTask] = useState(null);
+    const [activeChart, setActiveChart] = useState(null);
 
     // Initial kpis, will need to set based off user favorites
     const [tasks, setTasks] = useState([
@@ -174,10 +183,10 @@ const DashboardBuilder = () => {
     }, [tasks]);
 
     const [charts, setCharts] = useState([
-        { content: "Questions Over Time", id: "", columnId: "" },
-        { content: "Questions by Turnaround Time", id: "", columnId: "" },
-        { content: "Questions by Topic", id: "", columnId: "" },
-        { content: "Questions by Status", id: "", columnId: "" },
+        { content: "Cases by Divison", id: "GpbVQEU", columnId: "" },
+        { content: "Cases by Contact Type", id: "JKWRPb", columnId: "" },
+        { content: "Cases by Current Owner", id: "bZkVpUr", columnId: "" },
+        { content: "Cases by Request", id: "DRjXbkW", columnId: "" },
     ]);
 
     // Array of IDs for the SortableContext in the main dropdown
@@ -244,12 +253,17 @@ const DashboardBuilder = () => {
 
     // function to handle dnd kit drag start
     const onDragStart = (event) => {
+        console.log(event);
         if (event.active.data.current?.type === "column") {
             setActiveColumn(event.active.data.current.column);
             return;
         }
         if (event.active.data.current?.type === "task") {
             setActiveTask(event.active.data.current.task);
+            return;
+        }
+        if (event.active.data.current?.type === "chart") {
+            setActiveChart(event.active.data.current.task);
             return;
         }
     };
@@ -271,9 +285,14 @@ const DashboardBuilder = () => {
         const isActiveATask = active.data.current?.type === "task";
         const isOverATask = over.data.current?.type === "task";
 
-        if (!isActiveATask) {
-            return;
-        }
+        const isActiveAChart = active.data.current?.type === "chart";
+        const isOverAChart = over.data.current?.type === "chart";
+
+        console.log(isActiveATask, isActiveAChart, isOverATask, isOverAChart);
+
+        // if (!isActiveATask) {
+        //     return;
+        // }
         // Dropping a task over another task
         if (isActiveATask && isOverATask) {
             setTasks((tasks) => {
@@ -301,12 +320,24 @@ const DashboardBuilder = () => {
                 return arrayMove(tasks, activeIndex, activeIndex);
             });
         }
+        // Dropping a chart over a chart
+
+        if (isActiveAChart && isOverAChart) {
+            setCharts((charts) => {
+                const activeIndex = charts.findIndex((t) => t.id === activeId);
+                const overIndex = charts.findIndex((t) => t.id === overId);
+
+                return arrayMove(charts, activeIndex, overIndex);
+            });
+        }
     };
 
     // Drag End function for dnd kit
     const onDragEnd = (event) => {
         setActiveColumn(null);
         setActiveTask(null);
+        setActiveChart(null);
+
         const { active, over } = event;
         if (!over) {
             return;
@@ -318,16 +349,6 @@ const DashboardBuilder = () => {
         if (activeColumId === overColumnId) {
             return;
         }
-        setColumns((columns) => {
-            const activeColumnIndex = columns.findIndex(
-                (col) => col.id === activeColumId
-            );
-            const overColumIndex = columns.findIndex(
-                (col) => col.id === overColumnId
-            );
-
-            return arrayMove(columns, activeColumnIndex, overColumIndex);
-        });
     };
     return (
         <Dashboard>
@@ -342,11 +363,6 @@ const DashboardBuilder = () => {
                         title="KPI"
                         selections={tasks}
                         defaultIds={defaultTaskIds}
-                    />
-                    <SelectionAccordion
-                        title="Charts"
-                        selections={charts}
-                        defaultIds={defaultChartIds}
                     />
                 </div>
                 <div className="dashboard__builder-container">
@@ -386,11 +402,10 @@ const DashboardBuilder = () => {
                     <div className="dashboard__chart-row">
                         <ChartContainer
                             column="chart"
-                            charts={charts.filter(
-                                (chart) => chart.columnId === "chart"
-                            )}
+                            charts={charts}
                             deleteTask={deleteTask}
                         />
+                        <button className="dashboard__save-btn">Save</button>
                     </div>
                 </div>
                 {
@@ -406,6 +421,7 @@ const DashboardBuilder = () => {
                             />
                         )}
                         {activeTask && <TaskCard task={activeTask} />}
+                        {activeChart && <ChartCard task={activeChart} />}
                     </DragOverlay>
                 }
             </DndContext>
