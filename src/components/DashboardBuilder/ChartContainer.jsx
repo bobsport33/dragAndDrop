@@ -94,7 +94,6 @@ const ChartContainer = ({ column, charts, deleteTask }) => {
                             <TaskCard
                                 key={chart.id}
                                 task={chart}
-                                type="chart"
                                 deleteTask={deleteTask}
                             />
                         );

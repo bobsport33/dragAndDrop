@@ -45,7 +45,7 @@ const DraggingTask = styled("div")`
     opacity: 0.6;
     border: 2px solid red;
 `;
-const TaskCard = ({ task, deleteTask, type }) => {
+const TaskCard = ({ task, deleteTask }) => {
     const [mouseIsOver, setMouseIsOver] = useState(false);
 
     const {
@@ -58,7 +58,7 @@ const TaskCard = ({ task, deleteTask, type }) => {
     } = useSortable({
         id: task.id,
         data: {
-            type: type,
+            type: "task",
             task,
         },
     });
